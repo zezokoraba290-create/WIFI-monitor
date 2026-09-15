@@ -1,0 +1,51 @@
+name: Build App
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Flet build tools
+        run: pip install "flet[all]==0.28.3"
+
+      - name: Build Windows app
+        run: flet build windows -v
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: wifi-monitor-windows
+          path: build/windows
+
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Flet build tools
+        run: pip install "flet[all]==0.28.3"
+
+      - name: Build Android APK
+        run: flet build apk -v
+
+      - name: Upload Android build
+        uses: actions/upload-artifact@v4
+        with:
+          name: wifi-monitor-android
+          path: build/apk
