@@ -3,30 +3,74 @@ name: Build App
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
+
   build-windows:
     runs-on: windows-latest
+
     env:
       PYTHONUTF8: "1"
       PYTHONIOENCODING: "utf-8"
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Set up Python
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
-      - name: Install Flet build tools
-        run: pip install "flet[all]==0.28.3"
+      - name: Upgrade pip
+        run: |
+          python -m pip install --upgrade pip
 
-      - name: Build Windows app
-        run: flet build windows -v
+      - name: Install project dependencies
+        run: |
+          pip install -r requirements.txt
 
-      - name: Upload Windows build
+      - name: Build Windows
+        run: |
+          flet build windows -v
+
+      - name: Upload Windows
         uses: actions/upload-artifact@v4
         with:
           name: wifi-monitor-windows
           path: build/windows
+
+
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Upgrade pip
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Install project dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Build Android APK
+        run: |
+          flet build apk -v
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: wifi-monitor-android
+          path: build/apk
